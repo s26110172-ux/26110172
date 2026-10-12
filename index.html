@@ -7,6 +7,10 @@
     <title>Pen</title>
   </head>
   <body>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -215,7 +219,7 @@
 
         .exp-bar-fill {
             height: 100%;
-            width: 12.5%; /* 2 / 16 關卡進度 */
+            width: 18.75%; /* 3 / 16 關卡進度 */
             background: linear-gradient(90deg, var(--secondary-blue), var(--primary-blue));
             border-radius: 6px;
             box-shadow: 0 0 10px var(--primary-blue);
@@ -470,18 +474,17 @@
         <div class="profile-card">
             <div class="avatar-wrapper">
                 <div class="avatar-ring"></div>
-                <!-- 預設頭像圖片（可自行替換 src 連結） -->
-                <img src="https://i.postimg.cc/50L38Y1q/a0ed2e5ff020707e2931.jpg alt="大頭貼" class="avatar-img">
+                <img src="https://i.postimg.cc/50L38Y1q/a0ed2e5ff020707e2931.jpg" alt="大頭貼" class="avatar-img">
             </div>
             
-            <h1 class="user-name">紅絨 </h1>
+            <h1 class="user-name">紅絨</h1>
             <p class="user-title">WEB DEVELOPMENT PORTFOLIO</p>
 
-            <!-- 闖關經驗條 -->
+            <!-- 闖關經驗條 (已更新為 3/16) -->
             <div class="exp-bar-container">
                 <div class="exp-info">
                     <span>STAGE PROGRESS</span>
-                    <span>2 / 16 CLEARED</span>
+                    <span>3 / 16 CLEARED</span>
                 </div>
                 <div class="exp-bar-bg">
                     <div class="exp-bar-fill"></div>
@@ -521,16 +524,15 @@
                 </div>
             </a>
 
-            <!-- 按鈕 3 ~ 16：未解鎖狀態 -->
-            <!-- Week 03 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
+            <!-- 按鈕 3：已解鎖 (迷因產生器) -->
+            <a href="w3/index.html" class="stage-btn unlocked">
                 <div class="btn-top">
                     <span class="btn-badge">WEEK 03</span>
-                    <span class="btn-status-icon">🔒</span>
+                    <span class="btn-status-icon">🤡</span>
                 </div>
-                <div class="btn-title">未解鎖任務</div>
+                <div class="btn-title">Week 3 - 迷因產生器</div>
                 <div class="btn-footer">
-                    <span>LOCKED</span>
+                    <span class="btn-arrow">START →</span>
                 </div>
             </a>
 
@@ -720,7 +722,3 @@
         }
     </script>
 </body>
-</html>
-    <script src="./script.js"></script>
-  </body>
-</html>
