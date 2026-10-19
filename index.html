@@ -1,53 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="./style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pen</title>
-  </head>
-  <body>
-
-    <script src="./script.js"></script>
-  </body>
-</html>
-<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>朋友對我的動態留言板 - 大航海風格</title>
+  <title>Week 4 - 悄悄話 | 航海日誌留言牆</title>
   
-  <!-- 引入 Google Fonts 復古與航海風字體 -->
+  <!-- 引入 Google Fonts 復古航海字型 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       1. 視覺主題設定 (航海/牛皮紙/羊皮紙色調變數)
-          👉 你可以在這裡修改主要顏色的色碼！
+       1. 視覺主題與顏色變數 (航海羊皮紙/牛皮紙風格)
        ========================================================================== */
     :root {
-      /* 背景與水域顏色 */
-      --ocean-deep: #0b1d28;         /* 深海夜藍 */
-      --ocean-wave: #163244;         /* 海浪深藍 */
+      /* 海洋與背景色彩 */
+      --ocean-deep: #0b1d28;         /* 深海夜藍背景 */
+      --ocean-wave: #163244;         /* 波浪漸層藍 */
 
-      /* 羊皮紙與牛皮紙卡片顏色 */
+      /* 羊皮紙與牛皮紙卡片色彩 */
       --parchment-bg: #f4e8c1;       /* 羊皮紙主色 */
       --card-bg: #eddcb0;            /* 復古牛皮紙卡片背景 */
-      --card-border: #8b5a2b;        /* 卡片邊框（黃銅/皮革棕） */
+      --card-border: #8b5a2b;        /* 黃銅/皮革棕邊框 */
 
       /* 文字顏色 */
-      --text-ink: #2b1d0c;           /* 墨水深褐色 (主文字) */
+      --text-ink: #2b1d0c;           /* 墨水深褐色 (主要文字) */
       --text-muted: #6e5235;         /* 淡褐色 (次要資訊與時間) */
 
-      /* 高亮與特效顏色 (寶藏光芒) */
+      /* 高亮輪播與寶藏光芒 */
       --gold-bright: #ffd700;        /* 亮金黃色 */
-      --gold-glow: rgba(255, 215, 0, 0.6); /* 金光發光半透明色 */
-      --compass-red: #a82e2e;        /* 羅盤赤紅標示 */
+      --gold-glow: rgba(255, 215, 0, 0.6); /* 金色發光半透明光暈 */
+      --compass-red: #a82e2e;        /* 羅盤赤紅標題色 */
 
-      /* 輪播與視覺字體 */
+      /* 字型設定 */
       --font-title: 'Cinzel', 'Noto Serif TC', serif;
       --font-body: 'Noto Serif TC', serif;
     }
@@ -60,7 +46,6 @@
 
     body {
       background-color: var(--ocean-deep);
-      /* 經典海洋波紋與羊皮紙風格背景 */
       background-image: 
         radial-gradient(circle at 50% 20%, rgba(22, 50, 68, 0.8) 0%, transparent 80%),
         repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 10px);
@@ -72,7 +57,7 @@
       overflow-x: hidden;
     }
 
-    /* 頁頭標題區：航海圖繪製風格 */
+    /* 頁頭標題區 */
     header {
       text-align: center;
       margin-bottom: 2.5rem;
@@ -93,7 +78,6 @@
       gap: 15px;
     }
 
-    /* 標題旁的小羅盤圖示裝飾 */
     h1::before, h1::after {
       content: '⚓';
       font-size: 2rem;
@@ -109,7 +93,7 @@
     }
 
     /* ==========================================================================
-       2. 讀取中（Loading）航海船舵旋轉動畫
+       2. 讀取中（Loading）動畫
        ========================================================================== */
     #loading-container {
       display: flex;
@@ -119,7 +103,6 @@
       margin-top: 5rem;
     }
 
-    /* 旋轉羅盤 / 船舵動畫 */
     .helm-spinner {
       width: 80px;
       height: 80px;
@@ -130,7 +113,6 @@
       box-shadow: 0 0 20px var(--gold-glow);
     }
 
-    /* 船舵內部十字箭頭與指針 */
     .helm-spinner::before {
       content: '☸';
       font-size: 65px;
@@ -161,24 +143,20 @@
     }
 
     /* ==========================================================================
-       3. 瀑布流版面（Masonry Layout）與牛皮紙卡片
+       3. 瀑布流版面與卡片樣式
        ========================================================================== */
     #board {
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
-      
-      /* 使用 CSS Column 實現高低錯落瀑布流 */
       column-count: 3;
       column-gap: 1.8rem;
-      display: none; /* 資料讀取完成前先隱藏 */
+      display: none;
     }
 
-    /* 響應式斷點：依裝置寬度自動調格數 */
     @media (max-width: 900px) { #board { column-count: 2; } }
     @media (max-width: 600px) { #board { column-count: 1; } }
 
-    /* 留言卡片：復古羊皮紙/航海日誌風格 */
     .card {
       background: var(--card-bg);
       background-image: radial-gradient(circle at 100% 0%, rgba(139, 90, 43, 0.15) 0%, transparent 70%);
@@ -186,17 +164,14 @@
       border-radius: 8px;
       padding: 1.5rem;
       margin-bottom: 1.8rem;
-      break-inside: avoid; /* 防止卡片在瀑布流中被拆斷成兩半 */
+      break-inside: avoid;
       box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
       position: relative;
-
-      /* 平滑過渡動畫 (針對縮放、邊框與發光) */
       transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
       opacity: 0.85;
       filter: brightness(0.85) blur(0px);
     }
 
-    /* 卡片四角的復古金屬/鉚釘裝飾點 */
     .card::before {
       content: '⚓';
       position: absolute;
@@ -204,10 +179,9 @@
       right: 12px;
       font-size: 1.2rem;
       color: var(--card-border);
-      opacity: 0.4;
+      opacity: 0.3;
     }
 
-    /* 卡片標題（留言者與時間） */
     .card-header {
       border-bottom: 2px dashed var(--card-border);
       padding-bottom: 0.6rem;
@@ -237,7 +211,6 @@
       font-weight: bold;
     }
 
-    /* 卡片內容區域 */
     .card-body {
       display: flex;
       flex-direction: column;
@@ -263,7 +236,6 @@
       font-weight: 500;
     }
 
-    /* 重點留言（想對我說的話）：特別呈現為航海封印盒風格 */
     .main-message {
       background: rgba(139, 90, 43, 0.1);
       border-left: 4px solid var(--compass-red);
@@ -273,18 +245,13 @@
     }
 
     /* ==========================================================================
-       4. 計時器輪播『寶藏亮起 Highlight』與周圍變暗特效
-          👉 高亮與輪播發光效果在此設定！
+       4. 輪播高亮 Highlight 特效
        ========================================================================== */
-    
-    /* 🎯 當卡片被輪播選中時 (Highlight 狀態) */
     .card.highlight {
-      transform: scale(1.08) translateY(-5px); /* 放大並微微浮起 */
-      z-index: 10;                              /* 確保在最上層 */
+      transform: scale(1.08) translateY(-5px);
+      z-index: 10;
       opacity: 1;
-      filter: brightness(1.15) blur(0px);       /* 提高亮度，消除模糊 */
-      
-      /* 金黃色寶藏發光邊框與陰影 */
+      filter: brightness(1.15) blur(0px);
       border-color: var(--gold-bright);
       box-shadow: 
         0 0 25px var(--gold-glow),
@@ -292,52 +259,38 @@
         inset 0 0 15px rgba(255, 215, 0, 0.2);
     }
 
-    /* 當畫面進入輪播狀態時，其他「未選中」卡片的視覺處理 */
     #board.has-active .card:not(.highlight) {
-      opacity: 0.35;                            /* 稍微變暗透明 */
-      filter: brightness(0.6) blur(1.5px);      /* 降低亮度並稍微模糊 */
-      transform: scale(0.96);                  /* 微微縮小 */
+      opacity: 0.35;
+      filter: brightness(0.6) blur(1.5px);
+      transform: scale(0.96);
     }
   </style>
 </head>
 <body>
 
-  <!-- 頂部頁頭 -->
+  <!-- 頁頭 -->
   <header>
-    <h1>LOGBOOK OF FRIENDS</h1>
-    <p class="subtitle">⚓ 朋友對我的航海日誌留言牆 ⚓</p>
+    <h1>WEEK 04 - 悄悄話</h1>
+    <p class="subtitle">🤫 朋友對我的航海密語與留言牆 🤫</p>
   </header>
 
-  <!-- 載入中 Cool 動畫 -->
+  <!-- Loading 載入中動畫 -->
   <div id="loading-container">
     <div class="helm-spinner"></div>
-    <div class="loading-text" id="loading-status">讀取留言中...</div>
+    <div class="loading-text" id="loading-status">讀取悄悄話中...</div>
   </div>
 
   <!-- 瀑布流卡片牆 -->
   <main id="board"></main>
 
   <script>
-    /* ==========================================================================
-       5. 程式碼控制區 (Google CSV 網址、輪播秒數)
-          👉 你可以在這裡修改輪播間隔秒數！
-       ========================================================================== */
-
-    // 1️⃣ Google 試算表 CSV 發布網址
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKvMdMRSPW6viSlCyFGDPiXvl5FwYtSB8rAd-vTALO7UzY6w_xgPYwZlre0Z1nFHKdIKweGjTOV_-Q/pub?output=csv';
+    const CAROUSEL_INTERVAL_MS = 3000; // 3 秒輪播一次
 
-    // 2️⃣ 輪播卡片高亮的時間間隔 (單位：毫秒，3000 代表 3 秒)
-    const CAROUSEL_INTERVAL_MS = 3000; 
+    let cardsData = [];
+    let currentIndex = 0;
+    let highlightTimer = null;
 
-    // 全局變數定義
-    let cardsData = [];        // 解析後的卡片資料陣列
-    let currentIndex = 0;      // 目前高亮的卡片索引
-    let highlightTimer = null;   // setInterval 計時器物件
-
-    /**
-     * 自訂 CSV 解析器 (能夠妥善處理留言內容中含有逗號、換行或雙引號的狀況)
-     * @param {string} text - 原始 CSV 文字資料
-     */
     function parseCSV(text) {
       const lines = [];
       let row = [];
@@ -349,16 +302,16 @@
         const nextChar = text[i + 1];
 
         if (char === '"') {
-          if (insideQuotes && nextChar === '"') { // 處理轉義的雙引號 ""
+          if (insideQuotes && nextChar === '"') {
             entry += '"';
             i++;
-          } else { // 切換雙引號狀態
+          } else {
             insideQuotes = !insideQuotes;
           }
-        } else if (char === ',' && !insideQuotes) { // 遇不含在雙引號內的逗號 -> 切換欄位
+        } else if (char === ',' && !insideQuotes) {
           row.push(entry.trim());
           entry = '';
-        } else if ((char === '\r' || char === '\n') && !insideQuotes) { // 遇到換行 -> 切換列
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
           if (char === '\r' && nextChar === '\n') { i++; }
           row.push(entry.trim());
           if (row.length > 1 || row[0] !== '') { lines.push(row); }
@@ -368,20 +321,133 @@
           entry += char;
         }
       }
-      
       if (entry || row.length > 0) {
         row.push(entry.trim());
         lines.push(row);
       }
-      
       return lines;
     }
 
-    /**
-     * 從 Google 試算表獲取 CSV 資料
-     */
     async function fetchMessages() {
       const statusEl = document.getElementById('loading-status');
       try {
-        // 發送 Fetch 請求，設定 redirect: 'follow' 避免轉址中斷
         const response = await fetch(CSV_URL, { redirect: 'follow' });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP 狀態碼異常: ${response.status}`);
+        }
+        
+        const rawCsvText = await response.text();
+        
+        if (!rawCsvText || rawCsvText.trim().startsWith('<!DOCTYPE html>')) {
+          throw new Error('讀取到 HTML 而非 CSV，請確認 Google 試算表已「發布到 Web」並選擇 CSV 格式。');
+        }
+
+        const parsedRows = parseCSV(rawCsvText);
+
+        if (parsedRows.length <= 1) {
+          statusEl.innerText = '目前日誌中尚無任何留言資料。';
+          return;
+        }
+
+        // 解析 5 個欄位：時間戳記, 名字, 你要幾點下課, 今天的課怎麼樣, 你想對我說的話 (悄悄話)
+        cardsData = parsedRows.slice(1).map(row => ({
+          timestamp: row[0] || '未知時間',
+          name: row[1] || '水手朋友',
+          dismissTime: row[2] || '無特別說明',
+          courseFeedback: row[3] || '無特別說明',
+          whisperMessage: row[4] || '（無悄悄話留言）'
+        }));
+
+        document.getElementById('loading-container').style.display = 'none';
+        const board = document.getElementById('board');
+        board.style.display = 'block';
+
+        renderCards(cardsData);
+
+        if (cardsData.length > 0) {
+          startCarousel();
+        }
+
+      } catch (error) {
+        console.error('抓取留言資料失敗:', error);
+        if (statusEl) {
+          statusEl.innerText = `航海圖讀取失敗：${error.message}`;
+          statusEl.style.color = '#ff6b6b';
+        }
+      }
+    }
+
+    function renderCards(dataList) {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+
+      dataList.forEach((item, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.index = index;
+
+        cardEl.innerHTML = `
+          <div class="card-header">
+            <span class="author-name">${escapeHTML(item.name)}</span>
+            <span class="time-stamp">${escapeHTML(item.timestamp)}</span>
+          </div>
+          <div class="card-body">
+            <div class="qa-item">
+              <span class="qa-label">⚓ 你要幾點下課？</span>
+              <span class="qa-text">${escapeHTML(item.dismissTime)}</span>
+            </div>
+            <div class="qa-item">
+              <span class="qa-label">⛵ 今天的課怎麼樣？</span>
+              <span class="qa-text">${escapeHTML(item.courseFeedback)}</span>
+            </div>
+            <div class="qa-item main-message">
+              <span class="qa-label">💬 想對我說的話（悄悄話）：</span>
+              <span class="qa-text">${escapeHTML(item.whisperMessage)}</span>
+            </div>
+          </div>
+        `;
+
+        board.appendChild(cardEl);
+      });
+    }
+
+    function startCarousel() {
+      const board = document.getElementById('board');
+      const cards = document.querySelectorAll('.card');
+
+      if (cards.length === 0) return;
+
+      board.classList.add('has-active');
+      highlightCard(cards, currentIndex);
+
+      highlightTimer = setInterval(() => {
+        currentIndex = (currentIndex + 1) % cards.length;
+        highlightCard(cards, currentIndex);
+      }, CAROUSEL_INTERVAL_MS);
+    }
+
+    function highlightCard(cards, activeIndex) {
+      cards.forEach((card, i) => {
+        if (i === activeIndex) {
+          card.classList.add('highlight');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          card.classList.remove('highlight');
+        }
+      });
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchMessages);
+  </script>
+</body>
+</html>
