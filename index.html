@@ -14,711 +14,374 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人作品集入口網站 | Portfolio Entry</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>朋友對我的動態留言板 - 大航海風格</title>
+  
+  <!-- 引入 Google Fonts 復古與航海風字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. 視覺主題設定 (航海/牛皮紙/羊皮紙色調變數)
+          👉 你可以在這裡修改主要顏色的色碼！
+       ========================================================================== */
+    :root {
+      /* 背景與水域顏色 */
+      --ocean-deep: #0b1d28;         /* 深海夜藍 */
+      --ocean-wave: #163244;         /* 海浪深藍 */
+
+      /* 羊皮紙與牛皮紙卡片顏色 */
+      --parchment-bg: #f4e8c1;       /* 羊皮紙主色 */
+      --card-bg: #eddcb0;            /* 復古牛皮紙卡片背景 */
+      --card-border: #8b5a2b;        /* 卡片邊框（黃銅/皮革棕） */
+
+      /* 文字顏色 */
+      --text-ink: #2b1d0c;           /* 墨水深褐色 (主文字) */
+      --text-muted: #6e5235;         /* 淡褐色 (次要資訊與時間) */
+
+      /* 高亮與特效顏色 (寶藏光芒) */
+      --gold-bright: #ffd700;        /* 亮金黃色 */
+      --gold-glow: rgba(255, 215, 0, 0.6); /* 金光發光半透明色 */
+      --compass-red: #a82e2e;        /* 羅盤赤紅標示 */
+
+      /* 輪播與視覺字體 */
+      --font-title: 'Cinzel', 'Noto Serif TC', serif;
+      --font-body: 'Noto Serif TC', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ocean-deep);
+      /* 經典海洋波紋與羊皮紙風格背景 */
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(22, 50, 68, 0.8) 0%, transparent 80%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 10px);
+      color: var(--text-ink);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 2.5rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 頁頭標題區：航海圖繪製風格 */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--parchment-bg);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.4);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    /* 標題旁的小羅盤圖示裝飾 */
+    h1::before, h1::after {
+      content: '⚓';
+      font-size: 2rem;
+      color: var(--gold-bright);
+      text-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    p.subtitle {
+      color: #c9b085;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       2. 讀取中（Loading）航海船舵旋轉動畫
+       ========================================================================== */
+    #loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 5rem;
+    }
+
+    /* 旋轉羅盤 / 船舵動畫 */
+    .helm-spinner {
+      width: 80px;
+      height: 80px;
+      border: 6px double var(--gold-bright);
+      border-radius: 50%;
+      position: relative;
+      animation: spinHelm 3s linear infinite;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    /* 船舵內部十字箭頭與指針 */
+    .helm-spinner::before {
+      content: '☸';
+      font-size: 65px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      color: var(--parchment-bg);
+    }
+
+    @keyframes spinHelm {
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 1.8rem;
+      font-size: 1.3rem;
+      font-family: var(--font-title);
+      letter-spacing: 4px;
+      color: var(--parchment-bg);
+      text-shadow: 0 0 10px var(--gold-glow);
+      animation: waveText 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes waveText {
+      0% { opacity: 0.4; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(-5px); }
+    }
+
+    /* ==========================================================================
+       3. 瀑布流版面（Masonry Layout）與牛皮紙卡片
+       ========================================================================== */
+    #board {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      
+      /* 使用 CSS Column 實現高低錯落瀑布流 */
+      column-count: 3;
+      column-gap: 1.8rem;
+      display: none; /* 資料讀取完成前先隱藏 */
+    }
+
+    /* 響應式斷點：依裝置寬度自動調格數 */
+    @media (max-width: 900px) { #board { column-count: 2; } }
+    @media (max-width: 600px) { #board { column-count: 1; } }
+
+    /* 留言卡片：復古羊皮紙/航海日誌風格 */
+    .card {
+      background: var(--card-bg);
+      background-image: radial-gradient(circle at 100% 0%, rgba(139, 90, 43, 0.15) 0%, transparent 70%);
+      border: 2px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      break-inside: avoid; /* 防止卡片在瀑布流中被拆斷成兩半 */
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+      position: relative;
+
+      /* 平滑過渡動畫 (針對縮放、邊框與發光) */
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      opacity: 0.85;
+      filter: brightness(0.85) blur(0px);
+    }
+
+    /* 卡片四角的復古金屬/鉚釘裝飾點 */
+    .card::before {
+      content: '⚓';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 1.2rem;
+      color: var(--card-border);
+      opacity: 0.4;
+    }
+
+    /* 卡片標題（留言者與時間） */
+    .card-header {
+      border-bottom: 2px dashed var(--card-border);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .author-name {
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #4a2c11;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .author-name::before {
+      content: '🏴‍☠️';
+      font-size: 1.1rem;
+    }
+
+    .time-stamp {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    /* 卡片內容區域 */
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .qa-item {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .qa-label {
+      font-size: 0.85rem;
+      color: var(--compass-red);
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .qa-text {
+      color: var(--text-ink);
+      word-break: break-word;
+      font-weight: 500;
+    }
+
+    /* 重點留言（想對我說的話）：特別呈現為航海封印盒風格 */
+    .main-message {
+      background: rgba(139, 90, 43, 0.1);
+      border-left: 4px solid var(--compass-red);
+      padding: 0.8rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 0.4rem;
+    }
+
+    /* ==========================================================================
+       4. 計時器輪播『寶藏亮起 Highlight』與周圍變暗特效
+          👉 高亮與輪播發光效果在此設定！
+       ========================================================================== */
     
-    <style>
-        /* ==========================================
-           1. CSS 變數與基礎重置
-           ========================================== */
-        :root {
-            --bg-deep: #050b14;
-            --bg-card: rgba(14, 28, 54, 0.7);
-            --primary-blue: #00d2ff;
-            --secondary-blue: #0066ff;
-            --accent-blue: #3a88ff;
-            --glow-blue: rgba(0, 210, 255, 0.5);
-            --locked-bg: rgba(255, 255, 255, 0.04);
-            --locked-border: rgba(255, 255, 255, 0.12);
-            --locked-text: #60728f;
-            --text-light: #f0f6ff;
-            --text-muted: #8ab4f8;
-            --font-main: 'Noto Sans TC', sans-serif;
-            --font-tech: 'Orbitron', sans-serif;
-        }
+    /* 🎯 當卡片被輪播選中時 (Highlight 狀態) */
+    .card.highlight {
+      transform: scale(1.08) translateY(-5px); /* 放大並微微浮起 */
+      z-index: 10;                              /* 確保在最上層 */
+      opacity: 1;
+      filter: brightness(1.15) blur(0px);       /* 提高亮度，消除模糊 */
+      
+      /* 金黃色寶藏發光邊框與陰影 */
+      border-color: var(--gold-bright);
+      box-shadow: 
+        0 0 25px var(--gold-glow),
+        0 10px 25px rgba(0, 0, 0, 0.7),
+        inset 0 0 15px rgba(255, 215, 0, 0.2);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--bg-deep);
-            color: var(--text-light);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* 背景流動光暈與科技網格 */
-        .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-image: 
-                linear-gradient(rgba(0, 102, 255, 0.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 102, 255, 0.07) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -2;
-            pointer-events: none;
-        }
-
-        .bg-glow-1, .bg-glow-2 {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        .bg-glow-1 {
-            top: -10%;
-            left: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, var(--secondary-blue), transparent 70%);
-        }
-
-        .bg-glow-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, var(--primary-blue), transparent 70%);
-        }
-
-        /* ==========================================
-           2. 主要容器與個人資訊卡 (Profile)
-           ========================================== */
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-        }
-
-        .profile-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 210, 255, 0.25);
-            border-radius: 24px;
-            padding: 35px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
-                        inset 0 0 20px rgba(0, 210, 255, 0.1);
-            position: relative;
-            max-width: 500px;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
-
-        .profile-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 210, 255, 0.5);
-        }
-
-        /* 大頭貼與發光環 */
-        .avatar-wrapper {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            margin-bottom: 20px;
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-blue);
-            box-shadow: 0 0 25px var(--glow-blue);
-            position: relative;
-            z-index: 2;
-        }
-
-        .avatar-ring {
-            position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
-            border-radius: 50%;
-            border: 2px dashed var(--primary-blue);
-            animation: rotateRing 20s linear infinite;
-            opacity: 0.7;
-        }
-
-        @keyframes rotateRing {
-            100% { transform: rotate(360deg); }
-        }
-
-        .user-name {
-            font-size: 1.8rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--primary-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
-        }
-
-        .user-title {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            font-family: var(--font-tech);
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-
-        /* 遊戲化經驗條 (EXP) */
-        .exp-bar-container {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            padding: 4px;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            position: relative;
-        }
-
-        .exp-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-family: var(--font-tech);
-            margin-bottom: 6px;
-            padding: 0 4px;
-        }
-
-        .exp-bar-bg {
-            width: 100%;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .exp-bar-fill {
-            height: 100%;
-            width: 18.75%; /* 3 / 16 關卡進度 */
-            background: linear-gradient(90deg, var(--secondary-blue), var(--primary-blue));
-            border-radius: 6px;
-            box-shadow: 0 0 10px var(--primary-blue);
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* ==========================================
-           3. 關卡按鈕網格區域 (Grid)
-           ========================================== */
-        .grid-section-title {
-            align-self: flex-start;
-            font-family: var(--font-tech);
-            font-size: 1.1rem;
-            color: var(--primary-blue);
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: -20px;
-        }
-
-        .grid-section-title::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(0, 210, 255, 0.4), transparent);
-        }
-
-        .stage-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            width: 100%;
-        }
-
-        /* 按鈕基本樣式 */
-        .stage-btn {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 130px;
-            padding: 18px;
-            border-radius: 16px;
-            text-decoration: none;
-            color: var(--text-light);
-            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        /* === 已解鎖狀態 (Unlocked) === */
-        .stage-btn.unlocked {
-            background: linear-gradient(145deg, rgba(14, 38, 77, 0.8), rgba(6, 18, 38, 0.9));
-            border: 1px solid rgba(0, 210, 255, 0.4);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-        }
-
-        .stage-btn.unlocked::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        /* 解鎖按鈕懸停動畫 (Hover Effect) */
-        .stage-btn.unlocked:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--primary-blue);
-            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.35),
-                        0 0 20px rgba(0, 210, 255, 0.4);
-        }
-
-        .stage-btn.unlocked:hover::before {
-            left: 100%;
-        }
-
-        .stage-btn.unlocked:hover .btn-badge {
-            background: var(--primary-blue);
-            color: #000;
-            box-shadow: 0 0 10px var(--primary-blue);
-        }
-
-        .stage-btn.unlocked:hover .btn-arrow {
-            transform: translateX(5px);
-            color: var(--primary-blue);
-        }
-
-        /* === 未解鎖狀態 (Locked) === */
-        .stage-btn.locked {
-            background: var(--locked-bg);
-            border: 1px solid var(--locked-border);
-            color: var(--locked-text);
-            cursor: not-allowed;
-            backdrop-filter: blur(4px);
-        }
-
-        .stage-btn.locked:hover {
-            border-color: rgba(255, 255, 255, 0.25);
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        /* 點擊未解鎖時的搖晃動畫 */
-        .stage-btn.shake {
-            animation: shakeAnim 0.4s ease-in-out;
-            border-color: #ff4757 !important;
-        }
-
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-5px); }
-            80% { transform: translateX(5px); }
-        }
-
-        /* 內部元件樣式 */
-        .btn-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn-badge {
-            font-family: var(--font-tech);
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-muted);
-            transition: all 0.3s ease;
-        }
-
-        .stage-btn.unlocked .btn-badge {
-            background: rgba(0, 210, 255, 0.15);
-            color: var(--primary-blue);
-            border: 1px solid rgba(0, 210, 255, 0.3);
-        }
-
-        .btn-status-icon {
-            font-size: 1.1rem;
-        }
-
-        .btn-title {
-            font-size: 1rem;
-            font-weight: 700;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .stage-btn.unlocked .btn-title {
-            color: var(--text-light);
-        }
-
-        .btn-footer {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-
-        .btn-arrow {
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-        /* ==========================================
-           4. 鎖定提示浮層 Notification
-           ========================================== */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #ff4757;
-            color: #ff6b81;
-            padding: 12px 24px;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
-            font-size: 0.9rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        /* ==========================================
-           5. 響應式排版 (Responsive RWD)
-           ========================================== */
-        @media (max-width: 992px) {
-            .stage-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stage-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 14px;
-            }
-            .stage-btn {
-                height: 120px;
-                padding: 14px;
-            }
-            .profile-card {
-                padding: 25px;
-            }
-            .user-name {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stage-grid {
-                grid-template-columns: repeat(1, 1fr);
-            }
-            body {
-                padding: 20px 15px;
-            }
-        }
-    </style>
+    /* 當畫面進入輪播狀態時，其他「未選中」卡片的視覺處理 */
+    #board.has-active .card:not(.highlight) {
+      opacity: 0.35;                            /* 稍微變暗透明 */
+      filter: brightness(0.6) blur(1.5px);      /* 降低亮度並稍微模糊 */
+      transform: scale(0.96);                  /* 微微縮小 */
+    }
+  </style>
 </head>
 <body>
 
-    <!-- 背景視覺效果 -->
-    <div class="bg-grid"></div>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
+  <!-- 頂部頁頭 -->
+  <header>
+    <h1>LOGBOOK OF FRIENDS</h1>
+    <p class="subtitle">⚓ 朋友對我的航海日誌留言牆 ⚓</p>
+  </header>
 
-    <div class="container">
+  <!-- 載入中 Cool 動畫 -->
+  <div id="loading-container">
+    <div class="helm-spinner"></div>
+    <div class="loading-text" id="loading-status">讀取留言中...</div>
+  </div>
 
-        <!-- 個人資訊卡片 (Profile) -->
-        <div class="profile-card">
-            <div class="avatar-wrapper">
-                <div class="avatar-ring"></div>
-                <img src="https://i.postimg.cc/50L38Y1q/a0ed2e5ff020707e2931.jpg" alt="大頭貼" class="avatar-img">
-            </div>
-            
-            <h1 class="user-name">紅絨</h1>
-            <p class="user-title">WEB DEVELOPMENT PORTFOLIO</p>
+  <!-- 瀑布流卡片牆 -->
+  <main id="board"></main>
 
-            <!-- 闖關經驗條 (已更新為 3/16) -->
-            <div class="exp-bar-container">
-                <div class="exp-info">
-                    <span>STAGE PROGRESS</span>
-                    <span>3 / 16 CLEARED</span>
-                </div>
-                <div class="exp-bar-bg">
-                    <div class="exp-bar-fill"></div>
-                </div>
-            </div>
-        </div>
+  <script>
+    /* ==========================================================================
+       5. 程式碼控制區 (Google CSV 網址、輪播秒數)
+          👉 你可以在這裡修改輪播間隔秒數！
+       ========================================================================== */
 
-        <!-- 關卡選單標題 -->
-        <div class="grid-section-title">
-            <span>SELECT MISSION STAGE</span>
-        </div>
+    // 1️⃣ Google 試算表 CSV 發布網址
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKvMdMRSPW6viSlCyFGDPiXvl5FwYtSB8rAd-vTALO7UzY6w_xgPYwZlre0Z1nFHKdIKweGjTOV_-Q/pub?output=csv';
 
-        <!-- 16 個關卡按鈕區塊 -->
-        <div class="stage-grid">
+    // 2️⃣ 輪播卡片高亮的時間間隔 (單位：毫秒，3000 代表 3 秒)
+    const CAROUSEL_INTERVAL_MS = 3000; 
 
-            <!-- 按鈕 1：已解鎖 -->
-            <a href="w1/index.html" class="stage-btn unlocked">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 01</span>
-                    <span class="btn-status-icon">🚀</span>
-                </div>
-                <div class="btn-title">Week 1 - 數位名片</div>
-                <div class="btn-footer">
-                    <span class="btn-arrow">START →</span>
-                </div>
-            </a>
+    // 全局變數定義
+    let cardsData = [];        // 解析後的卡片資料陣列
+    let currentIndex = 0;      // 目前高亮的卡片索引
+    let highlightTimer = null;   // setInterval 計時器物件
 
-            <!-- 按鈕 2：已解鎖 -->
-            <a href="w2/index.html" class="stage-btn unlocked">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 02</span>
-                    <span class="btn-status-icon">🍔</span>
-                </div>
-                <div class="btn-title">Week 2 - 今天吃甚麼?</div>
-                <div class="btn-footer">
-                    <span class="btn-arrow">START →</span>
-                </div>
-            </a>
+    /**
+     * 自訂 CSV 解析器 (能夠妥善處理留言內容中含有逗號、換行或雙引號的狀況)
+     * @param {string} text - 原始 CSV 文字資料
+     */
+    function parseCSV(text) {
+      const lines = [];
+      let row = [];
+      let entry = '';
+      let insideQuotes = false;
 
-            <!-- 按鈕 3：已解鎖 (迷因產生器) -->
-            <a href="w3/index.html" class="stage-btn unlocked">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 03</span>
-                    <span class="btn-status-icon">🤡</span>
-                </div>
-                <div class="btn-title">Week 3 - 迷因產生器</div>
-                <div class="btn-footer">
-                    <span class="btn-arrow">START →</span>
-                </div>
-            </a>
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
 
-            <!-- Week 04 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 04</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 05 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 05</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 06 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 06</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 07 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 07</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 08 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 08</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 09 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 09</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 10 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 10</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 11 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 11</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 12 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 12</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 13 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 13</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 14 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 14</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 15 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 15</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-            <!-- Week 16 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
-                <div class="btn-top">
-                    <span class="btn-badge">WEEK 16</span>
-                    <span class="btn-status-icon">🔒</span>
-                </div>
-                <div class="btn-title">未解鎖任務</div>
-                <div class="btn-footer">
-                    <span>LOCKED</span>
-                </div>
-            </a>
-
-        </div>
-    </div>
-
-    <!-- 鎖定提示浮窗 -->
-    <div id="toast" class="toast">
-        <span>⚠️ 該關卡尚未解鎖，請先完成前置任務！</span>
-    </div>
-
-    <!-- JS 互動效果腳本 -->
-    <script>
-        let toastTimeout;
-
-        function triggerLockedEffect(element) {
-            // 觸發抖動效果
-            element.classList.remove('shake');
-            // 強制重繪
-            void element.offsetWidth;
-            element.classList.add('shake');
-
-            // 顯示 Toast 提示
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') { // 處理轉義的雙引號 ""
+            entry += '"';
+            i++;
+          } else { // 切換雙引號狀態
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) { // 遇不含在雙引號內的逗號 -> 切換欄位
+          row.push(entry.trim());
+          entry = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) { // 遇到換行 -> 切換列
+          if (char === '\r' && nextChar === '\n') { i++; }
+          row.push(entry.trim());
+          if (row.length > 1 || row[0] !== '') { lines.push(row); }
+          row = [];
+          entry = '';
+        } else {
+          entry += char;
         }
-    </script>
-</body>
+      }
+      
+      if (entry || row.length > 0) {
+        row.push(entry.trim());
+        lines.push(row);
+      }
+      
+      return lines;
+    }
+
+    /**
+     * 從 Google 試算表獲取 CSV 資料
+     */
+    async function fetchMessages() {
+      const statusEl = document.getElementById('loading-status');
+      try {
+        // 發送 Fetch 請求，設定 redirect: 'follow' 避免轉址中斷
+        const response = await fetch(CSV_URL, { redirect: 'follow' });
