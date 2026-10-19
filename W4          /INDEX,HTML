@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen</title>
+  </head>
+  <body>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 4 - 悄悄話 | 航海日誌留言牆</title>
+  
+  <!-- 引入 Google Fonts 復古與航海風字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. 視覺主題設定 (航海/牛皮紙/羊皮紙色調變數)
+       ========================================================================== */
+    :root {
+      /* 背景與水域顏色 */
+      --ocean-deep: #0b1d28;         /* 深海夜藍 */
+      --ocean-wave: #163244;         /* 海浪深藍 */
+
+      /* 羊皮紙與牛皮紙卡片顏色 */
+      --parchment-bg: #f4e8c1;       /* 羊皮紙主色 */
+      --card-bg: #eddcb0;            /* 復古牛皮紙卡片背景 */
+      --card-border: #8b5a2b;        /* 卡片邊框（黃銅/皮革棕） */
+
+      /* 文字顏色 */
+      --text-ink: #2b1d0c;           /* 墨水深褐色 (主文字) */
+      --text-muted: #6e5235;         /* 淡褐色 (次要資訊與時間) */
+
+      /* 高亮與特效顏色 (寶藏光芒) */
+      --gold-bright: #ffd700;        /* 亮金黃色 */
+      --gold-glow: rgba(255, 215, 0, 0.6); /* 金光發光半透明色 */
+      --compass-red: #a82e2e;        /* 羅盤赤紅標示 */
+
+      /* 輪播與視覺字體 */
+      --font-title: 'Cinzel', 'Noto Serif TC', serif;
+      --font-body: 'Noto Serif TC', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ocean-deep);
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(22, 50, 68, 0.8) 0%, transparent 80%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 10px);
+      color: var(--text-ink);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 2.5rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 頁頭標題區：航海圖繪製風格 */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--parchment-bg);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.4);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    h1::before, h1::after {
+      content: '⚓';
+      font-size: 2rem;
+      color: var(--gold-bright);
+      text-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    p.subtitle {
+      color: #c9b085;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       2. 讀取中（Loading）航海船舵旋轉動畫
+       ========================================================================== */
+    #loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 5rem;
+    }
+
+    .helm-spinner {
+      width: 80px;
+      height: 80px;
+      border: 6px double var(--gold-bright);
+      border-radius: 50%;
+      position: relative;
+      animation: spinHelm 3s linear infinite;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .helm-spinner::before {
+      content: '☸';
+      font-size: 65px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      color: var(--parchment-bg);
+    }
+
+    @keyframes spinHelm {
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 1.8rem;
+      font-size: 1.3rem;
+      font-family: var(--font-title);
+      letter-spacing: 4px;
+      color: var(--parchment-bg);
+      text-shadow: 0 0 10px var(--gold-glow);
+      animation: waveText 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes waveText {
+      0% { opacity: 0.4; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(-5px); }
+    }
+
+    /* ==========================================================================
+       3. 瀑布流版面（Masonry Layout）與牛皮紙卡片
+       ========================================================================== */
+    #board {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      column-count: 3;
+      column-gap: 1.8rem;
+      display: none;
+    }
+
+    @media (max-width: 900px) { #board { column-count: 2; } }
+    @media (max-width: 600px) { #board { column-count: 1; } }
+
+    .card {
+      background: var(--card-bg);
+      background-image: radial-gradient(circle at 100% 0%, rgba(139, 90, 43, 0.15) 0%, transparent 70%);
+      border: 2px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      break-inside: avoid;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+      position: relative;
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      opacity: 0.85;
+      filter: brightness(0.85) blur(0px);
+    }
+
+    .card::before {
+      content: '⚓';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 1.2rem;
+      color: var(--card-border);
+      opacity: 0.4;
+    }
+
+    .card-header {
+      border-bottom: 2px dashed var(--card-border);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .author-name {
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #4a2c11;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .author-name::before {
+      content: '🏴‍☠️';
+      font-size: 1.1rem;
+    }
+
+    .time-stamp {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .qa-item {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .qa-label {
+      font-size: 0.85rem;
+      color: var(--compass-red);
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .qa-text {
+      color: var(--text-ink);
+      word-break: break-word;
+      font-weight: 500;
+    }
+
+    .main-message {
+      background: rgba(139, 90, 43, 0.1);
+      border-left: 4px solid var(--compass-red);
+      padding: 0.8rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 0.4rem;
+    }
+
+    /* ==========================================================================
+       4. 輪播高亮 Highlight 特效
+       ========================================================================== */
+    .card.highlight {
+      transform: scale(1.08) translateY(-5px);
+      z-index: 10;
+      opacity: 1;
+      filter: brightness(1.15) blur(0px);
+      border-color: var(--gold-bright);
+      box-shadow: 
+        0 0 25px var(--gold-glow),
+        0 10px 25px rgba(0, 0, 0, 0.7),
+        inset 0 0 15px rgba(255, 215, 0, 0.2);
+    }
+
+    #board.has-active .card:not(.highlight) {
+      opacity: 0.35;
+      filter: brightness(0.6) blur(1.5px);
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部頁頭 -->
+  <header>
+    <h1>WEEK 04 - 悄悄話</h1>
+    <p class="subtitle">🤫 朋友對我的航海密語與留言牆 🤫</p>
+  </header>
+
+  <!-- 載入中動畫 -->
+  <div id="loading-container">
+    <div class="helm-spinner"></div>
+    <div class="loading-text" id="loading-status">讀取悄悄話中...</div>
+  </div>
+
+  <!-- 瀑布流卡片牆 -->
+  <main id="board"></main>
+
+  <script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKvMdMRSPW6viSlCyFGDPiXvl5FwYtSB8rAd-vTALO7UzY6w_xgPYwZlre0Z1nFHKdIKweGjTOV_-Q/pub?output=csv';
+    const CAROUSEL_INTERVAL_MS = 3000; 
+
+    let cardsData = [];
+    let currentIndex = 0;
+    let highlightTimer = null;
+
+    function parseCSV(text) {
+      const lines = [];
+      let row = [];
+      let entry = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            entry += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          row.push(entry.trim());
+          entry = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+          if (char === '\r' && nextChar === '\n') { i++; }
+          row.push(entry.trim());
+          if (row.length > 1 || row[0] !== '') { lines.push(row); }
+          row = [];
+          entry = '';
+        } else {
+          entry += char;
+        }
+      }
+      if (entry || row.length > 0) {
+        row.push(entry.trim());
+        lines.push(row);
+      }
+      return lines;
+    }
+
+    async function fetchMessages() {
+      const statusEl = document.getElementById('loading-status');
+      try {
+        const response = await fetch(CSV_URL, { redirect: 'follow' });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP 狀態碼錯誤: ${response.status}`);
+        }
+        
+        const rawCsvText = await response.text();
+        
+        if (!rawCsvText || rawCsvText.trim().startsWith('<!DOCTYPE html>')) {
+          throw new Error('讀取到 HTML 網頁而非 CSV，請確認 Google 試算表已「發布到 Web」並選擇 CSV 格式。');
+        }
+
+        const parsedRows = parseCSV(rawCsvText);
+
+        if (parsedRows.length <= 1) {
+          statusEl.innerText = '目前日誌中尚無任何留言資料。';
+          return;
+        }
+
+        cardsData = parsedRows.slice(1).map(row => ({
+          timestamp: row[0] || '未知時間',
+          name: row[1] || '水手朋友',
+          dismissTime: row[2] || '無特別說明',
+          courseFeedback: row[3] || '無特別說明',
+          message: row[4] || '（無留言）'
+        }));
+
+        document.getElementById('loading-container').style.display = 'none';
+        const board = document.getElementById('board');
+        board.style.display = 'block';
+
+        renderCards(cardsData);
+
+        if (cardsData.length > 0) {
+          startCarousel();
+        }
+
+      } catch (error) {
+        console.error('讀取 CSV 留言失敗:', error);
+        if (statusEl) {
+          statusEl.innerText = `航海圖讀取失敗：${error.message}`;
+          statusEl.style.color = '#ff6b6b';
+        }
+      }
+    }
+
+    function renderCards(dataList) {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+
+      dataList.forEach((item, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.index = index;
+
+        cardEl.innerHTML = `
+          <div class="card-header">
+            <span class="author-name">${escapeHTML(item.name)}</span>
+            <span class="time-stamp">${escapeHTML(item.timestamp)}</span>
+          </div>
+          <div class="card-body">
+            <div class="qa-item">
+              <span class="qa-label">⚓ 你要幾點下課？</span>
+              <span class="qa-text">${escapeHTML(item.dismissTime)}</span>
+            </div>
+            <div class="qa-item">
+              <span class="qa-label">⛵ 今天的課怎麼樣？</span>
+              <span class="qa-text">${escapeHTML(item.courseFeedback)}</span>
+            </div>
+            <div class="qa-item main-message">
+              <span class="qa-label">📜 悄悄話（想對我說的話）：</span>
+              <span class="qa-text">${escapeHTML(item.message)}</span>
+            </div>
+          </div>
+        `;
+
+        board.appendChild(cardEl);
+      });
+    }
+
+    function startCarousel() {
+      const board = document.getElementById('board');
+      const cards = document.querySelectorAll('.card');
+
+      if (cards.length === 0) return;
+
+      board.classList.add('has-active');
+      highlightCard(cards, currentIndex);
+
+      highlightTimer = setInterval(() => {
+        currentIndex = (currentIndex + 1) % cards.length;
+        highlightCard(cards, currentIndex);
+      }, CAROUSEL_INTERVAL_MS);
+    }
+
+    function highlightCard(cards, activeIndex) {
+      cards.forEach((card, i) => {
+        if (i === activeIndex) {
+          card.classList.add('highlight');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          card.classList.remove('highlight');
+        }
+      });
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchMessages);
+  </script>
+</body>
+</html>
