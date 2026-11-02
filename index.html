@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen</title>
+  </head>
+  <body>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -206,7 +215,7 @@
 
         .exp-bar-fill {
             height: 100%;
-            width: 12.5%; /* 2 / 16 關卡進度 */
+            width: 25%; /* 4 / 16 關卡進度 (25%) */
             background: linear-gradient(90deg, var(--secondary-blue), var(--primary-blue));
             border-radius: 6px;
             box-shadow: 0 0 10px var(--primary-blue);
@@ -462,17 +471,17 @@
             <div class="avatar-wrapper">
                 <div class="avatar-ring"></div>
                 <!-- 預設頭像圖片（可自行替換 src 連結） -->
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="大頭貼" class="avatar-img">
+                <img src="https://i.postimg.cc/8zzTXmR5/a0ed2e5ff020707e2931.jpg" class="avatar-img">
             </div>
             
-            <h1 class="user-name"> hongnhungggg </h1>
+            <h1 class="user-name"> hongnhung</h1>
             <p class="user-title">WEB DEVELOPMENT PORTFOLIO</p>
 
             <!-- 闖關經驗條 -->
             <div class="exp-bar-container">
                 <div class="exp-info">
                     <span>STAGE PROGRESS</span>
-                    <span>2 / 16 CLEARED</span>
+                    <span>4 / 16 CLEARED</span>
                 </div>
                 <div class="exp-bar-bg">
                     <div class="exp-bar-fill"></div>
@@ -512,31 +521,31 @@
                 </div>
             </a>
 
-            <!-- 按鈕 3 ~ 16：未解鎖狀態 -->
-            <!-- Week 03 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
+            <!-- 按鈕 3：已解鎖 -->
+            <a href="w3/index.html" class="stage-btn unlocked">
                 <div class="btn-top">
                     <span class="btn-badge">WEEK 03</span>
-                    <span class="btn-status-icon">🔒</span>
+                    <span class="btn-status-icon">💻</span>
                 </div>
-                <div class="btn-title">未解鎖任務</div>
+                <div class="btn-title">Week 3 - 作業任務 3</div>
                 <div class="btn-footer">
-                    <span>LOCKED</span>
+                    <span class="btn-arrow">START →</span>
                 </div>
             </a>
 
-            <!-- Week 04 -->
-            <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
+            <!-- 按鈕 4：已解鎖 -->
+            <a href="w4/index.html" class="stage-btn unlocked">
                 <div class="btn-top">
                     <span class="btn-badge">WEEK 04</span>
-                    <span class="btn-status-icon">🔒</span>
+                    <span class="btn-status-icon">⚡</span>
                 </div>
-                <div class="btn-title">未解鎖任務</div>
+                <div class="btn-title">Week 4 - 作業任務 4</div>
                 <div class="btn-footer">
-                    <span>LOCKED</span>
+                    <span class="btn-arrow">START →</span>
                 </div>
             </a>
 
+            <!-- 按鈕 5 ~ 16：未解鎖狀態 -->
             <!-- Week 05 -->
             <a href="javascript:void(0)" class="stage-btn locked" onclick="triggerLockedEffect(this)">
                 <div class="btn-top">
@@ -711,4 +720,7 @@
         }
     </script>
 </body>
+</html>
+    <script src="./script.js"></script>
+  </body>
 </html>
